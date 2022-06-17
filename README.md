@@ -1,4 +1,4 @@
-# bibtex2word
+# A FORK FROM [bibtex2word](https://github.com/paralax/bibtex2word)
 
 Processes Bibtex files, produces Word Source.xml output
 
