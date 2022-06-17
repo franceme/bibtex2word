@@ -18,7 +18,7 @@ except:
 # region Basic Information
 here = os.path.abspath(os.path.dirname(__file__))
 py_version = sys.version_info[:2]
-NAME = "bibtex2word"
+NAME = "bibtextoword"
 AUTHOR = 'Myles Frantz'
 EMAIL = 'frantzme@vt.edu'
 DESCRIPTION = 'My short description for my project.'
@@ -27,7 +27,7 @@ URL = f"https://github.com/{GH_NAME}/{NAME}"
 long_description = pathlib.Path(f"{here}/README.md").read_text(encoding='utf-8')
 RELEASE = "?"
 entry_point = f"{NAME}.{NAME}"
-VERSION = "0.0.170"
+VERSION = "0.0.0"
 
 def grab_version(update_patch:bool=False,update_minor:bool=False,update_major:bool=False):
 	update = any([update_patch,update_minor,update_major])
@@ -82,7 +82,7 @@ setup(
 	packages=find_packages(
 		exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
 	entry_points={
-        'console_scripts': ['mycli=src.bibtex2word:main'],
+        'console_scripts': ['mycli=src.bibtextoword:main'],
 	},
 	install_requires=[
 		"pybtex"
