@@ -13,12 +13,15 @@ try:
 except:
 	pass
 
-
+"""
+from src import bibtoword as bib
+bib.create("sample.bib","sample.xml")
+"""
 # endregion
 # region Basic Information
 here = os.path.abspath(os.path.dirname(__file__))
 py_version = sys.version_info[:2]
-NAME = "bibtextoword"
+NAME = "bibtoword"
 AUTHOR = 'Myles Frantz'
 EMAIL = 'frantzme@vt.edu'
 DESCRIPTION = 'My short description for my project.'
@@ -62,6 +65,11 @@ def selfArg(string):
 
 if selfArg('install'):
 	sys.exit(os.system('python3 -m pip install -e .'))
+elif selfArg('clean'):
+	os.system('yes|rm -r build/')
+	os.system('yes|rm -r *.egg-info/')
+	os.system('yes|rm -r src/__pycache__/')
+	sys.exit(0)
 elif selfArg('upload'):
 	grab_version(True)
 	sys.exit(os.system(f"{sys.executable} setup.py sdist && {sys.executable} -m twine upload --skip-existing dist/*"))
@@ -82,7 +90,7 @@ setup(
 	packages=find_packages(
 		exclude=["tests", "*.tests", "*.tests.*", "tests.*"]),
 	entry_points={
-        'console_scripts': ['mycli=src.bibtextoword:main'],
+        'console_scripts': [f"mycli=src.{NAME}:main"],
 	},
 	install_requires=[
 		"pybtex"

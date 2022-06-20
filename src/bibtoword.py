@@ -5,28 +5,35 @@ from optparse import OptionParser
 from pybtex.database.input import bibtex
 import xml.etree.cElementTree as ET
 
-parser = OptionParser()
-parser.add_option('-a', '--append', dest='inxml', action='store',help='existing filename (e.g. Sources.xml) to append elements to')
-parser.add_option('-d', '--debug', dest='debug', action='store_true', default=False, help='debug (useful for broken .bib entries)')
-parser.add_option('-i', '--input', dest='bibtexfile', type='string', help='input bibtex filename', action='store')
-parser.add_option('-o', '--output', dest='xmlfile', type='string',default=sys.stdout,help='output filename', action='store')
+def create(bibtexfile, xmlfile, append:bool=False, debug:bool=False):
+    ktr = 0
+    def msg(msg:str, num:int=ktr, self_debug:bool=debug):
+        if self_debug:
+            print(f"{num} :> {msg}")
 
-def create(bibdata, xmlfile):
     try:
-        ET.register_namespace('', "http://schemas.microsoft.com/office/word/2004/10/bibliography")
-        ET.register_namespace('b', "http://schemas.microsoft.com/office/word/2004/10/bibliography")
-        root = ET.parse(options.inxml).getroot()
-    except TypeError:
+        parser = bibtex.Parser()
+        bibdata = parser.parse_file(bibtexfile)
+    except NameError:
+        msg('Need an input filename. See --help')
+        sys.exit(1)
+
+    if append:
+        try:
+            ET.register_namespace('', "http://schemas.microsoft.com/office/word/2004/10/bibliography")
+            ET.register_namespace('b', "http://schemas.microsoft.com/office/word/2004/10/bibliography")
+            root = ET.parse(append).getroot()
+        except TypeError:
+            root = ET.Element('b:Sources', {'xmlns:b': "http://schemas.microsoft.com/office/word/2004/10/bibliography"""})
+    else:
         root = ET.Element('b:Sources', {'xmlns:b': "http://schemas.microsoft.com/office/word/2004/10/bibliography"""})
 
     for key, entry in bibdata.entries.iteritems():
-        if options.debug:
-            print(key)
+        msg(f"{key} :> {entry}")
         source = ET.SubElement(root, 'b:Source')
         tag = ET.SubElement(source, 'b:Tag')
         tag.text = key
         b = bibdata.entries[key].fields
-        
         srctypes = {'book': 'Book',
                     'article': 'ArticleInAPeriodical',
                     'incollection': 'ArticleInAPeriodical',
@@ -38,7 +45,8 @@ def create(bibdata, xmlfile):
         try:
             srctype = ET.SubElement(source, 'b:SourceType')
             srctype.text = srctypes.get(entry.type)
-        except KeyError:
+        except KeyError as e:
+            msg(f"Exception :> {e}")
             source.remove(srctype)
 
         def add_element(source, tagname, keyname):
@@ -65,16 +73,20 @@ def create(bibdata, xmlfile):
         namelist = ET.SubElement(authors1, 'b:NameList')
         for author in bibdata.entries[key].persons["author"]:
             person = ET.SubElement(namelist, 'b:Person')
-            first = ET.SubElement(person, 'b:First')
+            
             try:
+                first = ET.SubElement(person, 'b:First')
                 first.text = author.first()[0]
-            except IndexError:
+            except:# IndexError:
                 first.text = ''
-            last = ET.SubElement(person, 'b:Last')
-            last.text = author.last()[0]
+            try:
+                last = ET.SubElement(person, 'b:Last')
+                last.text = author.last()[0]
+            except:
+                last.text=''    
 
     # hack, unable to get register_namespace to work right when parsing the doc
-    output = ET.tostring(root).replace('ns0:', 'b:').replace('ns0=', 'b=')
+    output = ET.tostring(root).decode("utf-8").replace('ns0:', 'b:').replace('ns0=', 'b=')
     try:
         with open(xmlfile, 'w+') as f:
             f.write(output)
@@ -82,18 +94,17 @@ def create(bibdata, xmlfile):
         print(output)
 
 def main():
+    parser = OptionParser()
+    parser.add_option('-a', '--append', dest='inxml', action='store',help='existing filename (e.g. Sources.xml) to append elements to')
+    parser.add_option('-d', '--debug', dest='debug', action='store_true', default=False, help='debug (useful for broken .bib entries)')
+    parser.add_option('-i', '--input', dest='bibtexfile', type='string', help='input bibtex filename', action='store')
+    parser.add_option('-o', '--output', dest='xmlfile', type='string',default=sys.stdout,help='output filename', action='store')
     print('Starting')
     (options, args) = parser.parse_args()
-    parser = bibtex.Parser()
-    try:
-        bibdata = parser.parse_file(options.bibtexfile)
-    except NameError:
-        print('Need an input filename. See --help')
-        sys.exit(1)
 
     if len(args) > 0:
         print('Warning: extra arguments ignored: ' + ' '.join(args))
-    create(bibdata, options.xmlfile)
+    create(options.bibtexfile, options.xmlfile, options.inxml, options.debug)
 
 if __name__ =='__main__':
     sys.exit(main())
