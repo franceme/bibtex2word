@@ -21,7 +21,11 @@ bib.create("sample.bib","sample.xml")
 # region Basic Information
 here = os.path.abspath(os.path.dirname(__file__))
 py_version = sys.version_info[:2]
+<<<<<<< HEAD
 NAME = "bibtoword"
+=======
+NAME = "bibtex2word"
+>>>>>>> ce2c8147f2f425531ae4a779d65730e4f06ee258
 AUTHOR = 'Myles Frantz'
 EMAIL = 'frantzme@vt.edu'
 DESCRIPTION = 'My short description for my project.'
@@ -30,7 +34,7 @@ URL = f"https://github.com/{GH_NAME}/{NAME}"
 long_description = pathlib.Path(f"{here}/README.md").read_text(encoding='utf-8')
 RELEASE = "?"
 entry_point = f"{NAME}.{NAME}"
-VERSION = "0.0.0"
+VERSION = "0.0.1"
 
 def grab_version(update_patch:bool=False,update_minor:bool=False,update_major:bool=False):
 	update = any([update_patch,update_minor,update_major])

@@ -72,13 +72,17 @@ def create(bibtexfile, xmlfile):
                     'phdthesis': 'Report',
                     'techreport': 'Report'}
 
-        srctype = ET.SubElement(source, 'b:SourceType')
         try:
+            srctype = ET.SubElement(source, 'b:SourceType')
+<<<<<<< HEAD:src/bibtoword.py
             srctype.text = srctypes.get(entry.type)
         except KeyError as e:
             msg(f"Exception :> {e}")
-            #source.remove(srctype)
-            srctype.text=""
+=======
+            srctype.text = srctypes.get(entry.type, default='UNKNOWN')
+        except KeyError:
+>>>>>>> ce2c8147f2f425531ae4a779d65730e4f06ee258:src/bibtex2word.py
+            source.remove(srctype)
 
         def add_element(source, tagname, keyname):
             try:
